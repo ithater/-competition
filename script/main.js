@@ -172,6 +172,7 @@ leftMenu.addEventListener('click', evt => {
 
 	if (target.closest('#all')) {
 		heroesHolder.textContent = '';
+		response.textContent = '';
 		dbService.getReadyJson(arr => arr.forEach(item => renderCard(item)));
 		hamburger.classList.remove('open');
 		leftMenu.classList.remove('openMenu');
