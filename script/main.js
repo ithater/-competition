@@ -178,6 +178,7 @@ leftMenu.addEventListener('click', evt => {
 		closeDropdowns();
 
 		// если выбрали другой пункт меню, то сбрасывем все выбранные фильмы
+		console.log('all');
 		const checked = document.querySelectorAll('.dropdown-list li[data-checked="true"]');
 		checked.forEach(item => {
 			item.dataset.checked = '';
