@@ -176,6 +176,13 @@ leftMenu.addEventListener('click', evt => {
 		hamburger.classList.remove('open');
 		leftMenu.classList.remove('openMenu');
 		closeDropdowns();
+
+		// если выбрали другой пункт меню, то сбрасывем все выбранные фильмы
+		const checked = document.querySelectorAll('.dropdown-list li[data-checked="true"]');
+		checked.forEach(item => {
+			item.dataset.checked = '';
+			item.style.backgroundColor = '';
+		});
 	}
 
 	if (dropdown) {
