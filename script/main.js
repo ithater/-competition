@@ -151,7 +151,7 @@ const renderFilteredJSON = (settings = []) => dbService.getReadyJson(data => {
 		}
 	});
 
-	// console.log(globalSet);
+
 
 	if (globalSet.size === 0) {
 		response.textContent = 'There are no сharacters who can support these filters.';
@@ -169,7 +169,7 @@ const toggle = (data, value, defaultValue = '') => {
 
 const toggleCheck = parent => {
 	const type = parent.dataset.type;
-	console.log('type: ', type);
+
 
 	if (type === 'movies') {
 		parent.dataset.checked = toggle(parent.dataset.checked, 'true', 'false');
@@ -178,14 +178,14 @@ const toggleCheck = parent => {
 	}
 
 	const checked = document.querySelector(`#${type} .dropdown-list li[data-checked="true"]`);
-	console.log('checked: ', checked);
+
 	parent.dataset.checked = "true";
 	parent.style.backgroundColor = '#000';
 
 	if (!checked) return;
 
 	if (checked === parent) {
-		console.log(checked === parent);
+
 		checked.dataset.checked = "false";
 		checked.style.backgroundColor = '';
 		return;
@@ -259,7 +259,6 @@ leftMenu.addEventListener('click', evt => {
 		// возможно ... лишнее. Без них возвращает DOMStringMap, поэтому просто сразу сделал обычным объектом,
 		// чтобы если что потом не было мороки.
 		checked.forEach(({ dataset }) => settings.push({ ...dataset }));
-		console.log('settings: ', settings);
 
 		renderFilteredJSON(settings);
 	}
