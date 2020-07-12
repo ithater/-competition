@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .content {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        
+        .heroes {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        
+        .item {
+            list-style-type: disc;
+            display: block;
+            width: 279px;
+            height: 496px;
+            margin-bottom: 20px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        img {
+            width: 279px;
+            height: 496px;
+            width: 100%; 
+        }
+        
+        .name {
+            position: absolute;
+            top: 20px;
+            background: rgba(255, 255, 255, 0.671);
+            width: 100%;
+            text-align: center;
+            font-size: 20px;
+        }
+        
+        .stats {
+            opacity: 1;
+            position: absolute;
+            bottom: 0px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.712);
+            
+            line-height: 22px;
+            font-size: 20px;
+            transition: 1s;
+            font-weight: 400;
+            color: white;
+        }
+        
+        ul.films li {
+            list-style-type: disc !important;
+        }
+        
+        .unselectable {
+            -webkit-touch-callout: none; 
+            -webkit-user-select: none;  
+            -khtml-user-select: none;   
+            -moz-user-select: none;    
+            -ms-user-select: none;     
+            user-select: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="container">
+            <ul class="heroes">
+                <li class="item"> 
+                    <img src="dbHeroes-master\dbimage\Wong_AIW_Profile.jpg" alt="">
+                    <div class="name">Имя: Edwin Jarvis</div>
+                    <div class="info unselectable">
+                        <ul class="stats">
+                            <li>Реальное имя: Edwin Jarvis</li>
+                            <li>Вид: human</li>
+                            <li>Пол: </li>
+                            <li>Гражданство: British</li>
+                            <li>Статус: deceased</li>
+                            <li>Актер: James D'Arcy</li>
+                            
+                            <li>Фильмы
+                                <ul class="films">
+                                    <li>Avengers</li>
+                                    <li>Avengers</li>
+                                    <li>Avengers</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+    
+            </ul>
+    </div>
+</body>
+</html>
