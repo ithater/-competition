@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 // Меню
 const leftMenu = document.querySelector('.left-menu');
 const hamburger = document.querySelector('.hamburger');
@@ -79,7 +80,7 @@ const renderCard = ({
 	heroesHolder.append(card);
 };
 
-// Закрытие dropdown
+// Закрытие dropdowns
 const closeDropdowns = () => dropdowns.forEach(item => item.classList.remove('active'));
 
 // добавление фильтров в меню
@@ -107,40 +108,58 @@ const addFilters = data => {
 		});
 	};
 
-	// фильмы
+	// добавляем фильтры
 	addFiltersByType('movies', '#films .dropdown-list');
-	addFiltersByType('species', '#spicies .dropdown-list');
+	addFiltersByType('species', '#species .dropdown-list');
 	addFiltersByType('citizenship', '#citizenship .dropdown-list');
 	addFiltersByType('gender', '#gender .dropdown-list');
 	addFiltersByType('status', '#status .dropdown-list');
 };
 
-// cb - функция рендера, или любая другая, которая будет работать с новым итерируемый объектом (кусочком);
-const filterJSON = (type, key, cb) => dbService.getReadyJson(data => {
-	if (type !== 'movies' && type !== 'status') cb(data.filter(item => item[type] === key));
-	else if (type === 'movies') {
-		let globalSet;
+// рендерит по фильтрам (настрокам), по умолчанию выводит все карточки.
+const renderFilteredJSON = (settings = []) => dbService.getReadyJson(data => {
+	response.textContent = '';
+	heroesHolder.textContent = '';
 
-		key.forEach((key, index) => {
-			const localSet = new Set(data.filter(item => {
-				if (item[type] && item[type].indexOf(key) > -1) return true;
-			}));
-
-
-			if (index > 0) globalSet = new Set([...globalSet].filter(x => localSet.has(x)));
-			else globalSet = localSet;
-
-		});
-
-		if (globalSet.size === 0) response.textContent = 'There are no heroes who participate in these films.';
-		else response.textContent = '';
-		cb(globalSet);
-	} else if (type === 'status') {
-		// поскольку есть такие, где есть deathDay, но у персонажа стоит alive (например black widow), сделал проверку
-		if (key === 'alive') cb(data.filter(item => item[type] === key && !item.deathDay));
-		else if (key === 'deceased') cb(data.filter(item => item[type] === key || item.deathDay));
-		else cb(data.filter(item => item[type] === key));
+	if (settings.length === 0) {
+		data.forEach(item => renderCard(item));
+		return;
 	}
+
+	let globalSet;
+
+	const getSetIntersection = (global, local) => new Set([...global].filter(x => local.has(x)));
+
+	settings.forEach(({ type, key }, index) => {
+		let localSet;
+		// в case нельзя создавать переменные
+		switch (type) {
+			case 'status':
+				if (key === 'alive') localSet = new Set(data.filter(item => item[type] === key && !item.deathDay));
+				// eslint-disable-next-line max-len
+				else if (key === 'deceased') localSet = new Set(data.filter(item => item[type] === key || item.deathDay));
+				else localSet = new Set(data.filter(item => item[type] === key));
+				globalSet = index === 0 ? localSet : getSetIntersection(globalSet, localSet);
+				break;
+			case 'movies':
+				localSet = new Set(data.filter(item => item['movies'] && item['movies'].indexOf(key) > -1));
+				globalSet = index === 0 ? localSet : getSetIntersection(globalSet, localSet);
+					break;
+			default:
+				localSet = new Set(data.filter(item => item[type] === key));
+				globalSet = index === 0 ? localSet : getSetIntersection(globalSet, localSet);
+		}
+	});
+
+	// console.log(globalSet);
+
+	if (globalSet.size === 0) {
+		response.textContent = 'There are no сharacters who can support these filters.';
+		heroesHolder.textContent = '';
+		return;
+	}
+
+	globalSet.forEach(item => renderCard(item));
 });
 
 const toggle = (data, value, defaultValue = '') => {
@@ -148,10 +167,43 @@ const toggle = (data, value, defaultValue = '') => {
 	return value;
 };
 
+const toggleCheck = parent => {
+	const type = parent.dataset.type;
+	console.log('type: ', type);
+
+	if (type === 'movies') {
+		parent.dataset.checked = toggle(parent.dataset.checked, 'true', 'false');
+		parent.style.backgroundColor = toggle(parent.style.backgroundColor, 'rgb(0, 0, 0)');
+		return;
+	}
+
+	const checked = document.querySelector(`#${type} .dropdown-list li[data-checked="true"]`);
+	console.log('checked: ', checked);
+	parent.dataset.checked = "true";
+	parent.style.backgroundColor = '#000';
+
+	if (!checked) return;
+
+	if (checked === parent) {
+		console.log(checked === parent);
+		checked.dataset.checked = "false";
+		checked.style.backgroundColor = '';
+		return;
+	}
+
+	switch (type) {
+		case 'status':
+		case 'citizenship':
+		case 'species':
+		case 'gender':
+			checked.dataset.checked = 'false';
+			checked.style.backgroundColor = '';
+	}
+};
+
 hamburger.addEventListener('click', () => {
 	hamburger.classList.toggle('open');
 	leftMenu.classList.toggle('openMenu');
-	closeDropdowns();
 });
 
 // Закрытие меню вне меню
@@ -159,9 +211,9 @@ document.addEventListener('click', evt => {
 	if (!evt.target.closest('.left-menu')) {
 		hamburger.classList.remove('open');
 		leftMenu.classList.remove('openMenu');
-		closeDropdowns();
 	}
 });
+
 
 // Открытие/закрытие вкладок в меню и переход по фильтрам;
 leftMenu.addEventListener('click', evt => {
@@ -172,10 +224,18 @@ leftMenu.addEventListener('click', evt => {
 
 	if (target.closest('#all')) {
 		heroesHolder.textContent = '';
-		dbService.getReadyJson(arr => arr.forEach(item => renderCard(item)));
+		response.textContent = '';
+		renderFilteredJSON();
 		hamburger.classList.remove('open');
 		leftMenu.classList.remove('openMenu');
 		closeDropdowns();
+
+		// если выбрали другой пункт меню, то сбрасывем все выбранные фильмы
+		const checked = document.querySelectorAll('.dropdown-list li[data-checked="true"]');
+		checked.forEach(item => {
+			item.dataset.checked = '';
+			item.style.backgroundColor = '';
+		});
 	}
 
 	if (dropdown) {
@@ -188,37 +248,18 @@ leftMenu.addEventListener('click', evt => {
 	if (link) {
 		// переход по фильтру
 		const parentOfLink = link.closest('li');
-		const type = parentOfLink.dataset.type;
-		const key = parentOfLink.dataset.key;
 
-		if (type !== 'movies') {
-			hamburger.classList.remove('open');
-			leftMenu.classList.remove('openMenu');
-			closeDropdowns();
-			heroesHolder.textContent = '';
-			filterJSON(type, key, data => data.forEach(item => renderCard(item)));
+		toggleCheck(parentOfLink);
 
-			// если выбрали другой пункт меню, то сбрасывем все выбранные фильмы
-			const checked = document.querySelectorAll('.dropdown-list li[data-checked="true"]');
-			checked.forEach(item => {
-				item.dataset.checked = '';
-				item.style.backgroundColor = '';
-			});
+		const settings = [];
+		const checked = document.querySelectorAll('.dropdown-list li[data-checked="true"]');
 
-		}	else if (type === 'movies') {
-			parentOfLink.dataset.checked = toggle(parentOfLink.dataset.checked, 'true', 'false');
-			parentOfLink.style.backgroundColor = toggle(parentOfLink.style.backgroundColor, 'rgb(0, 0, 0)');
+		// возможно ... лишнее. Без них возвращает DOMStringMap, поэтому просто сразу сделал обычным объектом,
+		// чтобы если что потом не было мороки.
+		checked.forEach(({ dataset }) => settings.push({ ...dataset }));
+		console.log('settings: ', settings);
 
-			const checked = [...document.querySelectorAll('.dropdown-list li[data-checked="true"]')];
-			const keys = checked.map(item => item.dataset.key);
-			heroesHolder.textContent = '';
-			if (keys.length === 0) dbService.getReadyJson(arr => arr.forEach(item => renderCard(item)));
-			else filterJSON(type, keys, data => data.forEach(item => renderCard(item)));
-		}
-
-
-
-
+		renderFilteredJSON(settings);
 	}
 });
 
@@ -233,9 +274,9 @@ heroesHolder.addEventListener('click', evt => {
 
 });
 
-// Заполнение сайта всеми карточками.
-dbService.getReadyJson(arr => arr.forEach(item => renderCard(item)));
+// Заполнение сайта всеми карточками, по умолчаню просто выводит все карточки.
+renderFilteredJSON();
 
-// Добавление фильтров в меню
+// Добавление фильтров в меню.
 dbService.getReadyJson(data => addFilters(data));
 
