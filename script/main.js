@@ -225,7 +225,9 @@ leftMenu.addEventListener('click', evt => {
 	if (target.closest('#all')) {
 		heroesHolder.textContent = '';
 		response.textContent = '';
+
 		renderFilteredJSON();
+
 		hamburger.classList.remove('open');
 		leftMenu.classList.remove('openMenu');
 		closeDropdowns();
