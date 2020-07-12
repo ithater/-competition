@@ -4,7 +4,10 @@ const leftMenu = document.querySelector('.left-menu');
 const hamburger = document.querySelector('.hamburger');
 const dropdowns = document.querySelectorAll('.dropdown');
 
-// Ответ
+// search__form
+const searchFormInput = document.querySelector('#searchText');
+
+// Ответ в случае неудачного поиска
 const response = document.querySelector('#response');
 
 // Heroes-holder
@@ -280,4 +283,38 @@ renderFilteredJSON();
 
 // Добавление фильтров в меню.
 dbService.getReadyJson(data => addFilters(data));
+
+
+console.log('searchFormInput: ', searchFormInput);
+
+// поиск, импровизация.)  | не зависит от фильтров, при таком поиске они сбрасываются,
+// работает только по имени (реальному, псевдоним, актер)
+searchFormInput.addEventListener('input', () => {
+	const checked = document.querySelectorAll('.dropdown-list li[data-checked="true"]');
+	const value = searchFormInput.value.toLowerCase().trim();
+	checked.forEach(item => {
+		item.dataset.checked = '';
+		item.style.backgroundColor = '';
+	});
+
+	dbService.getReadyJson(data => {
+		const arr = data.filter(({ name, realName, actors }) => {
+			if (!name && !realName && !actors) return;
+			name = name?.toLowerCase();
+			realName = realName?.toLowerCase();
+			actors = actors?.toLowerCase();
+			return name?.startsWith(value) || realName?.startsWith(value) || actors?.startsWith(value);
+		});
+
+		console.log(arr);
+		heroesHolder.textContent = '';
+
+		if (arr.length === 0) {
+			response.textContent = 'There are no characters with that name.';
+			return;
+		}
+		response.textContent = '';
+		arr.forEach(item => renderCard(item));
+	});
+});
 
