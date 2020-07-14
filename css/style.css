@@ -1281,3 +1281,7 @@ div:after {
 #response {
     text-align: center;
 }
+
+.title-wrapper {
+    cursor: pointer;
+}
